@@ -12,3 +12,15 @@ void swap(int *a, int *b)
 	*a = *b;
 	*b = swp;
 }
+
+time_t start = 0;
+
+void tic()
+{
+	start = clock();
+}
+
+float toc()
+{
+	return (float) (clock() - start) / CLOCKS_PER_SEC;
+}

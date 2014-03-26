@@ -3,5 +3,7 @@
 
 int randi(int min, int max);
 void swap(int *a, int *b);
+void tic();
+float toc();
 
 #endif
