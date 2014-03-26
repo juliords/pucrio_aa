@@ -1,4 +1,5 @@
 #include<stdlib.h>
+#include<time.h>
 #include"common.h"
 
 int randi(int min, int max)
