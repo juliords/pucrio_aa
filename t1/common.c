@@ -13,7 +13,7 @@ void swap(int *a, int *b)
 	*b = swp;
 }
 
-time_t start = 0;
+static time_t start = 0;
 
 void tic()
 {
