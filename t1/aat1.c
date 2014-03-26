@@ -2,19 +2,6 @@
 #include<stdlib.h>
 #include<time.h>
 
-int intpow(int b, int e)
-{
-	int t;
-	if(e < 1) return 1;
-
-	t = intpow(b, e/2);
-
-	if(e % 2) 
-		return t * t * b;
-	else 
-		return t * t;
-}
-
 int randi(int min, int max)
 {
 	return ( rand() % (max - min + 1) ) + min;
@@ -65,12 +52,13 @@ int main ()
 	int i;
 
 	srand(time(NULL));
+	printf("%d\n", 2<<(4-1));
 
 	for(i = 1; i <= 15; i++)
-		instance_a(vet, 1000*intpow(2,i));
+		instance_a(vet, 1000*(2<<(i-1)));
 
 	for(i = 1; i <= 15; i++)
-		instance_b(vet, intpow(2,25), intpow(2, i));
+		instance_b(vet, 2<<(25-1), 2<<(i-1));
 
 	return 0;
 }
