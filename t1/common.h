@@ -8,5 +8,6 @@ float toc();
 void print_array(int *v, int n);
 void copy_array(int *src, int *dst, int n);
 int partition(int *v, int low, int high, int pivot_position);
+int log_2(int n);
 
 #endif

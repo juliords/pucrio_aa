@@ -1,6 +1,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<time.h>
+#include<math.h>
 #include"common.h"
 
 int randi(int min, int max)
@@ -72,4 +73,9 @@ int partition(int *v, int low, int high, int pivot_position)
 	v[i] = pivot;
 	
 	return i;
+}
+
+int log_2(int n)
+{
+	return (int) (log(n) / log(2));
 }
