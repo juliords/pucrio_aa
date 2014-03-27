@@ -42,3 +42,34 @@ void copy_array(int *src, int *dst, int n)
 	for (i = 0; i < n; i++)
 		dst[i] = src[i];
 }
+
+int partition(int *v, int low, int high, int pivot_position)
+{
+	int pivot = v[pivot_position];
+	int i = low, j = high - 1;
+
+	// store pivot at the end of the array
+	v[pivot_position] = v[high];
+	v[high] = pivot;
+
+	while (i < j)
+	{
+		while (i < j && v[i] <= pivot)
+			i++;
+
+		while (i < j && v[j] > pivot) 
+			j--;
+
+		if (i < j)
+			swap(&v[i], &v[j]);
+	}
+    
+    // adjust pivot's new position, if necessary
+	if (v[i] <= pivot)
+		i++;
+
+	v[high] = v[i]; // restore pivot to new position
+	v[i] = pivot;
+	
+	return i;
+}
