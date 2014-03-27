@@ -1,4 +1,3 @@
-#include<stdio.h>
 #include"common.h"
 
 static int do_quick_select(int *v, int low, int high, int k);

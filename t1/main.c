@@ -1,14 +1,16 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<time.h>
 #include"instance.h"
 #include"common.h"
 #include"heap.h"
 #include"quick.h"
+#include"stupid.h"
 
-#define NUM 1000 * 1 << 15
+#define VSIZE (1 << 25) + 1
 
-int vet[NUM];
-int vet2[NUM];
+int vet[VSIZE];
+int vet2[VSIZE];
 
 int main()
 {
@@ -23,7 +25,13 @@ int main()
 		printf("\nInput with %d elements.\n", n);
 		
 		instance_a(vet, n);
-		
+
+		copy_array(vet, vet2, n);
+		tic();
+		median = stupid_select(vet2, n, n / 2);
+		dt = toc();
+		printf("Select select found the median %d in %.3fs\n", median, dt);
+
 		copy_array(vet, vet2, n);
 		tic();
 		median = heap_select(vet2, n, n / 2);
