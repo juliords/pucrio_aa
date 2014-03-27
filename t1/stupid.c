@@ -6,11 +6,11 @@ int stupid_select(int *v, int n, int k)
 {
 	int i, j;
 
-	for(i = 1; i <= k; i++)
+	for(i = 0; i < k; i++)
 	{
 		int min = v[i], imin = i;
 
-		for(j = i+1; j <= n; j++)
+		for(j = i+1; j < n; j++)
 		{
 			if(v[j] < min)
 			{
@@ -22,5 +22,5 @@ int stupid_select(int *v, int n, int k)
 		swap(&v[i], &v[imin]);
 	}
 
-	return v[k];
+	return v[k-1];
 }

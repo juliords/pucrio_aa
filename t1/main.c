@@ -7,10 +7,22 @@
 #include"quick.h"
 #include"stupid.h"
 
-#define VSIZE (1 << 25) + 1
+#define VSIZE (1 << 25)
 
 int vet[VSIZE];
 int vet2[VSIZE];
+
+int main_stupid_test()
+{
+	int n = 20;
+	srand(time(NULL));
+	instance_a(vet, n);
+	print_array(vet, n);
+	printf("%d\n", stupid_select(vet, n, n/2));
+	print_array(vet, n);
+
+	return 0;
+}
 
 int main()
 {
@@ -30,7 +42,7 @@ int main()
 		tic();
 		median = stupid_select(vet2, n, n / 2);
 		dt = toc();
-		printf("Select select found the median %d in %.3fs\n", median, dt);
+		printf("Stupid select found the median %d in %.3fs\n", median, dt);
 
 		copy_array(vet, vet2, n);
 		tic();
