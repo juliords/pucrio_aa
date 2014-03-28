@@ -1,3 +1,4 @@
+#include<assert.h>
 #include"stupid.h"
 #include"common.h"
 
@@ -5,6 +6,8 @@
 int stupid_select(int *v, int n, int k)
 {
 	int i, j;
+	assert(v && n);
+	assert(k <= n);
 
 	for(i = 0; i < k; i++)
 	{
@@ -12,6 +15,8 @@ int stupid_select(int *v, int n, int k)
 
 		for(j = i+1; j < n; j++)
 		{
+			if(toc() > 60) return -1;
+
 			if(v[j] < min)
 			{
 				min = v[j];

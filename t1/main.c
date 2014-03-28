@@ -6,11 +6,10 @@
 #include"heap.h"
 #include"quick.h"
 #include"stupid.h"
+#include"median.h"
 
-#define VSIZE (1 << 25)
-
-int vet[VSIZE];
-int vet2[VSIZE];
+int vet[INPUT_MAX];
+int vet2[INPUT_MAX];
 
 int main_stupid_test()
 {
@@ -55,6 +54,12 @@ int main()
 		median = quick_select(vet2, n, n / 2);
 		dt = toc();
 		printf("Quick select found the median %d in %.3fs\n", median, dt);
+
+		copy_array(vet, vet2, n);
+		tic();
+		median = median_select(vet2, n, n / 2);
+		dt = toc();
+		printf("Median select found the median %d in %.3fs\n", median, dt);
 	}
 
 	return 0;

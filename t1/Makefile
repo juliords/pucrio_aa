@@ -6,7 +6,8 @@ RESOURCES=main.c \
 	  instance.c instance.h \
 	  heap.c heap.h \
 	  quick.c quick.h \
-	  stupid.c stupid.h 
+	  stupid.c stupid.h \
+	  median.c median.h
 
 SRC=$(filter %.c, ${RESOURCES})
 HDR=$(filter %.h, ${RESOURCES})
