@@ -4,7 +4,7 @@ static int do_quick_select(int *v, int low, int high, int k);
 
 int quick_select(int *v, int n, int k)
 {
-	return do_quick_select(v, 1, n - 1, k);
+	return do_quick_select(v, 0, n - 1, k);
 }
 
 static int do_quick_select(int *v, int low, int high, int k)
@@ -15,6 +15,9 @@ static int do_quick_select(int *v, int low, int high, int k)
 	int pivot = randi(low, high), size_l;
 	pivot = partition(v, low, high, pivot);
 	size_l = pivot - low;
+	
+	if (toc() > TIME_LIMIT)
+		return ABORTED;
 	
 	if (size_l == k - 1)
 		return v[pivot];

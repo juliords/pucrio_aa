@@ -25,6 +25,9 @@ int stupid_select(int *v, int n, int k)
 		}
 
 		swap(&v[i], &v[imin]);
+		
+		if (toc() > TIME_LIMIT)
+			return ABORTED;
 	}
 
 	return v[k-1];
