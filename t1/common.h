@@ -1,6 +1,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#define TIME_LIMIT 60
+#define ABORTED    -1
+
 int randi(int min, int max);
 void swap(int *a, int *b);
 void tic();

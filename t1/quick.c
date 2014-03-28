@@ -16,6 +16,9 @@ static int do_quick_select(int *v, int low, int high, int k)
 	pivot = partition(v, low, high, pivot);
 	size_l = pivot - low;
 	
+	if (toc() > TIME_LIMIT)
+		return ABORTED;
+	
 	if (size_l == k - 1)
 		return v[pivot];
 	else if (size_l > k - 1)
