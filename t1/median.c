@@ -1,7 +1,8 @@
-#include<stdlib.h>
 #include<assert.h>
 #include"common.h"
 #include"stupid.h"
+
+#define PSIZE 5
 
 /* returns index of k-th element */
 static int do_median_select(int *v, int n, int k)
@@ -13,40 +14,40 @@ static int do_median_select(int *v, int n, int k)
 	/* base case */
 	if(n == 1) return 0;
 
-#if 1 // switch between median select and quick select, for test purposes only
-	for(i = 0; i < n/5; i++)
+	if (toc() > TIME_LIMIT)
+		return ABORTED;
+	
+	for(i = 0; i < n/PSIZE; i++)
 	{
-		int *pv = v+(5*i);
+		int *pv = v+(PSIZE*i);
+		int mid = (PSIZE+1)/2;
 
 		/* assuming that stupid select shifts k-th element to its position */
-		stupid_select(pv, 5, 3);
-		swap(&v[i], &pv[3]);
+		stupid_select(pv, PSIZE, mid);
+		swap(&v[i], &pv[mid-1]);
 	}
 
-	if(n%5) 
+	if(n%PSIZE) 
 	{
-		int *pv = v+(5*i);
-		int mid = ((n%5)+1)/2; // ceil( ( n % 5 ) / 2 )
+		int *pv = v+(PSIZE*i);
+		int mid = ((n%PSIZE)+1)/2; // ceil( ( n % PSIZE ) / 2 )
 
-		stupid_select(pv, n%5, mid);
-		swap(&v[i], &v[mid]);
+		stupid_select(pv, n%PSIZE, mid);
+		swap(&v[i], &pv[mid-1]);
 
 		i++;
 	}
 
 	/* "i" is now the index of median */
 	i = do_median_select(v, i, (i/2)+1);
-#else
-	i = randi(0, n-1);
-#endif
 	i = partition(v, 0, n-1, i);
 
 	if(k < (i+1)) 
 		return do_median_select(v, i, k);
-	
+
 	else if(k > (i+1))
-		return do_median_select(&v[i+1], n-i-1, k-i-1);
-	
+		return (i+1) + do_median_select(&v[i+1], n-(i+1), k-(i+1));
+
 	else
 		return i;
 }

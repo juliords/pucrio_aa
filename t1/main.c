@@ -39,8 +39,8 @@ void test_all(int n, int k)
 {
 	test_one(n, k, stupid_select, "Stupid", 1);
 	test_one(n, k, heap_select, "Heap", 1);
-	test_one(n, k, quick_select, "Quick", 10);
 	test_one(n, k, median_select, "Median", 1);
+	test_one(n, k, quick_select, "Quick", 10);
 	printf("\n");
 }
 
