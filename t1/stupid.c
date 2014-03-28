@@ -7,7 +7,7 @@ int stupid_select(int *v, int n, int k)
 {
 	int i, j;
 	assert(v && n);
-	assert(k <= n);
+	assert(k >= 1 && k <= n);
 
 	for(i = 0; i < k; i++)
 	{
@@ -15,7 +15,8 @@ int stupid_select(int *v, int n, int k)
 
 		for(j = i+1; j < n; j++)
 		{
-			if(toc() > 60) return -1;
+			if (toc() > TIME_LIMIT)
+				return ABORTED;
 
 			if(v[j] < min)
 			{
