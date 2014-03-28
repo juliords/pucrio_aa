@@ -42,6 +42,9 @@ static int do_median_select(int *v, int n, int k)
 	i = do_median_select(v, i, (i/2)+1);
 	i = partition(v, 0, n-1, i);
 
+	if (toc() > TIME_LIMIT)
+		return ABORTED;
+	
 	if(k < (i+1)) 
 		return do_median_select(v, i, k);
 
@@ -54,5 +57,10 @@ static int do_median_select(int *v, int n, int k)
 
 int median_select(int *v, int n, int k)
 {
-	return v[do_median_select(v,n,k)];
+	int i = do_median_select(v,n,k);
+
+	if(i == ABORTED)
+		return ABORTED;
+
+	return v[i];
 }
