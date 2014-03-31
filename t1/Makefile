@@ -13,16 +13,19 @@ SRC=$(filter %.c, ${RESOURCES})
 HDR=$(filter %.h, ${RESOURCES})
 OBJ=${SRC:.c=.o}
 
-CFLAGS= -O0 -Wall -g $(CPATH)
-LDFLAGS=-O0 -lm
+CFLAGS= -O2 -Wall -g $(CPATH)
+LDFLAGS=-O2 -lm
 EXE=main
 
-.PHONY: all clean
-all: .depend.mk $(EXE)
+.PHONY: all test clean
+all: test
 zip: Makefile $(SRC) $(HDR)
 	zip -r mypackage.zip $^
 
-$(EXE): $(OBJ)
+test: $(EXE)
+	./$<
+
+$(EXE): .depend.mk $(OBJ)
 	$(CC) $(OBJ) $(LDFLAGS) $(LDLIBS) -o $(EXE)
 
 $(OBJ): %.o: %.c
