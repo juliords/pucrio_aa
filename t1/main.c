@@ -17,7 +17,7 @@ int vet2[INPUT_MAX];
 
 void test_one(int n, int k, int (*select)(int*, int, int), char *name, int ntimes)
 {
-	int i, kth;
+	int i, kth = ABORTED;
 	float total = 0;
 	for (i = 0; i < ntimes; i++)
 	{
