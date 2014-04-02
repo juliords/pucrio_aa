@@ -79,7 +79,7 @@ int main()
 		int p = 1 << j;
 		instance_b(vet, INPUT_MAX, p);
 		printf("%d;%d;", j, p);
-		test_battery(n);
+		test_battery(INPUT_MAX);
 	}
 	
 	return 0;
