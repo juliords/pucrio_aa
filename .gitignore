@@ -5,3 +5,8 @@
 .depend.mk
 main
 log
+*.dev
+*.exe
+*.layout
+*.win
+*.csv
