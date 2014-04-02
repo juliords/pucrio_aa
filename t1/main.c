@@ -17,7 +17,7 @@ int vet2[INPUT_MAX];
 
 void test_one(int n, int k, int (*select)(int*, int, int), char *name, int ntimes)
 {
-	int i, kth = ABORTED;
+	int i, kth;
 	float total = 0;
 	for (i = 0; i < ntimes; i++)
 	{
@@ -30,9 +30,9 @@ void test_one(int n, int k, int (*select)(int*, int, int), char *name, int ntime
 			break;
 	}
 	if (kth != ABORTED)
-		printf(MSG, name, k, kth, total / ntimes);
+		printf("%f;", total/ntimes); //printf(MSG, name, k, kth, total / ntimes);
 	else
-		printf(MSG_NOK, name, k, TIME_LIMIT);
+		printf("#;"); //printf(MSG_NOK, name, k, TIME_LIMIT);
 }
 
 void test_all(int n, int k)
@@ -41,7 +41,6 @@ void test_all(int n, int k)
 	test_one(n, k, heap_select, "Heap", 1);
 	test_one(n, k, median_select, "Median", 1);
 	test_one(n, k, quick_select, "Quick", 10);
-	printf("\n");
 }
 
 void test_battery(int n)
@@ -50,6 +49,7 @@ void test_battery(int n)
 	test_all(n, log_2(n));
 	test_all(n, (int) sqrt((double) n));
 	test_all(n, n / 2);
+	printf("\n");
 }
 
 int main()
@@ -58,22 +58,29 @@ int main()
 
 	srand(time(NULL));
 	
+	printf(";;k = 5;;;;k = log2(n);;;;k = sqrt(n);;;;k = n/2;\n");
+	printf("i;n;Stupid;Heap;Median;Quick;");
+	printf("Stupid;Heap;Median;Quick;");
+	printf("Stupid;Heap;Median;Quick;");
+	printf("Stupid;Heap;Median;Quick;\n");
+	
 	for (i = 1; i <= 15; i++)
 	{
 		int n = 1000 * (1 << i);
-		printf("Input with %d elements.\n", n);
 		instance_a(vet, n);
+		printf("%d;%d;", i, n);
 		test_battery(n);
 	}
 	
-	for (j = 1; j <= 10; j++)
+	printf("j;p;\n");
+	
+	for (j = 1; j <= 15; j++)
 	{
-		int n = 1 << 25;
 		int p = 1 << j;
-		printf("Input with 2^25 ordered elements and %d permutations.\n", p);
-		instance_b(vet, n, p);
+		instance_b(vet, INPUT_MAX, p);
+		printf("%d;%d;", j, p);
 		test_battery(n);
 	}
-
+	
 	return 0;
 }
