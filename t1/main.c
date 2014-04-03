@@ -52,11 +52,15 @@ void test_battery(int n)
 	printf("\n");
 }
 
-int main()
+int main(int argc, char **argv)
 {
 	int i, j;
+	int seed;
 
-	srand(time(NULL));
+	if(argc < 2 || !(seed = atoi(argv[1])))
+		seed = time(NULL);
+	printf("SEED: %u\n", seed);
+	srand(seed);
 	
 	printf(";;k = 5;;;;k = log2(n);;;;k = sqrt(n);;;;k = n/2;\n");
 	printf("i;n;Stupid;Heap;Median;Quick;");
