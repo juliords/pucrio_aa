@@ -18,7 +18,7 @@ LDFLAGS=-O2 -lm
 EXE=main
 
 .PHONY: all test clean
-all: test
+all: $(EXE)
 zip: Makefile $(SRC) $(HDR)
 	zip -r mypackage.zip $^
 

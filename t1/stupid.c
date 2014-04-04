@@ -11,19 +11,11 @@ int stupid_select(int *v, int n, int k)
 
 	for(i = 0; i < k; i++)
 	{
-		int min = v[i], imin = i;
+		int imin = i;
 
 		for(j = i+1; j < n; j++)
-		{
-			if (toc() > TIME_LIMIT)
-				return ABORTED;
-
-			if(v[j] < min)
-			{
-				min = v[j];
+			if(v[j] < v[imin])
 				imin = j;
-			}
-		}
 
 		swap(&v[i], &v[imin]);
 		
