@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<assert.h>
 #include<math.h>
 #include"instance.h"
 #include"common.h"
@@ -22,12 +23,15 @@ void test_one(int n, int k, int (*select)(int*, int, int), char *name, int ntime
 	for (i = 0; i < ntimes; i++)
 	{
 		copy_array(vet, vet2, n);
+
 		tic();
 		kth = select(vet2, n, k);
 		total += toc();
 		
 		if (kth == ABORTED)
 			break;
+		else
+			assert(kth == k);
 	}
 	if (kth != ABORTED)
 		printf("%f;", total/ntimes); //printf(MSG, name, k, kth, total / ntimes);
