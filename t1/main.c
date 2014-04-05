@@ -1,6 +1,5 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<time.h>
 #include<math.h>
 #include"instance.h"
 #include"common.h"
@@ -8,6 +7,7 @@
 #include"quick.h"
 #include"stupid.h"
 #include"median.h"
+#include"prng.h"
 
 #define MSG     "%s select found the %d-th element, %d, in %.4fs\n"
 #define MSG_NOK "%s select failed to find the %d-th element in under %ds\n"
@@ -57,10 +57,18 @@ int main(int argc, char **argv)
 	int i, j;
 	int seed;
 
+	randk_reset();
 	if(argc < 2 || !(seed = atoi(argv[1])))
-		seed = time(NULL);
-	printf("SEED: %u\n", seed);
-	srand(seed);
+	{
+		//seed = time(NULL);
+		randk_seed();
+	}
+	else
+	{
+		printf("SEED: %u\n", seed);
+		//srand(seed);
+		randk_seed_manual(seed);
+	}
 	
 	printf(";;k = 5;;;;k = log2(n);;;;k = sqrt(n);;;;k = n/2;\n");
 	printf("i;n;Stupid;Heap;Median;Quick;");

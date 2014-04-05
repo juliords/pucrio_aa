@@ -1,13 +1,17 @@
-#include<stdlib.h>
 #include<stdio.h>
 #include<time.h>
 #include<math.h>
 #include"common.h"
+#include"prng.h"
 
-int randi(int min, int max)
+/* ------------------------------------------------------ */
+
+unsigned int randi(int min, int max)
 {
-	return ( rand() % (max - min + 1) ) + min;
+	return (unsigned int) ( randk() % (max - min + 1) ) + min;
 }
+
+/* ------------------------------------------------------ */
 
 void swap(int *a, int *b)
 {
@@ -15,6 +19,8 @@ void swap(int *a, int *b)
 	*a = *b;
 	*b = swp;
 }
+
+/* ------------------------------------------------------ */
 
 static time_t start = 0;
 
@@ -27,6 +33,8 @@ float toc()
 {
 	return (float) (clock() - start) / CLOCKS_PER_SEC;
 }
+
+/* ------------------------------------------------------ */
 
 void print_array(int *v, int n)
 {
@@ -43,6 +51,8 @@ void copy_array(int *src, int *dst, int n)
 	for (i = 0; i < n; i++)
 		dst[i] = src[i];
 }
+
+/* ------------------------------------------------------ */
 
 int partition(int *v, int low, int high, int pivot_position)
 {
@@ -75,7 +85,11 @@ int partition(int *v, int low, int high, int pivot_position)
 	return i;
 }
 
+/* ------------------------------------------------------ */
+
 int log_2(int n)
 {
 	return (int) (log(n) / log(2));
 }
+
+/* ------------------------------------------------------ */

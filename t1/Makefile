@@ -1,13 +1,14 @@
 CPATH=-I.
 
 # .c, .h, .S
-RESOURCES=main.c \
-	  common.c common.h \
+RESOURCES=main.c                \
+	  common.c   common.h   \
 	  instance.c instance.h \
-	  heap.c heap.h \
-	  quick.c quick.h \
-	  stupid.c stupid.h \
-	  median.c median.h
+	  heap.c     heap.h     \
+	  quick.c    quick.h    \
+	  stupid.c   stupid.h   \
+	  median.c   median.h   \
+	  prng.c     prng.h
 
 SRC=$(filter %.c, ${RESOURCES})
 HDR=$(filter %.h, ${RESOURCES})
