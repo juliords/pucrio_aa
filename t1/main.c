@@ -25,7 +25,7 @@ typedef struct
 
 	/* output */
 	int running;
-	int time;
+	float time;
 	int kth;
 
 } ThreadData;
