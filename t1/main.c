@@ -34,6 +34,9 @@ void* thread_exec(void *arg)
 {
 	ThreadData *p = (ThreadData*) arg;
 
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
 	p->running = 1;
 	tic();
 	p->kth = p->select(p->v, p->n, p->k);
