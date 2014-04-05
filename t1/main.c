@@ -2,6 +2,8 @@
 #include<stdlib.h>
 #include<assert.h>
 #include<math.h>
+#include<pthread.h>
+#include<unistd.h>
 #include"instance.h"
 #include"common.h"
 #include"heap.h"
@@ -10,33 +12,82 @@
 #include"median.h"
 #include"prng.h"
 
-#define MSG     "%s select found the %d-th element, %d, in %.4fs\n"
-#define MSG_NOK "%s select failed to find the %d-th element in under %ds\n"
-
 int vet[INPUT_MAX];
 int vet2[INPUT_MAX];
 
+typedef struct 
+{
+	/* input */
+	int (*select)(int*, int, int);
+	int *v;
+	int n;
+	int k;
+
+	/* output */
+	int running;
+	int time;
+	int kth;
+
+} ThreadData;
+
+void* thread_exec(void *arg)
+{
+	ThreadData *p = (ThreadData*) arg;
+
+	p->running = 1;
+	tic();
+	p->kth = p->select(p->v, p->n, p->k);
+	p->time = toc();
+	p->running = 0;
+
+	return NULL;
+}
+
 void test_one(int n, int k, int (*select)(int*, int, int), char *name, int ntimes)
 {
-	int i, kth = ABORTED;
+	int i;
 	float total = 0;
+	void *res;
+
+	pthread_t tid;
+	ThreadData td;
+	td.v = vet2;
+	td.n = n;
+	td.k = k;
+	td.select = select;
+
 	for (i = 0; i < ntimes; i++)
 	{
 		copy_array(vet, vet2, n);
+	
+		pthread_create(&tid, NULL, thread_exec, &td);
 
-		tic();
-		kth = select(vet2, n, k);
-		total += toc();
+		while(td.running)
+		{
+			usleep(100000); // 100ms
+
+			if (toc() > TIME_LIMIT)
+			{
+				pthread_cancel(tid);	
+				break;
+			}
+		}
 		
-		if (kth == ABORTED)
-			break;
+		pthread_join(tid, &res);
+		if(res == PTHREAD_CANCELED)
+		{
+			// timed out
+			printf("#;");
+			return;
+		}
 		else
-			assert(kth == k);
+		{
+			assert(td.kth == k);
+			total += td.time;
+		}
 	}
-	if (kth != ABORTED)
-		printf("%f;", total/ntimes); //printf(MSG, name, k, kth, total / ntimes);
-	else
-		printf("#;"); //printf(MSG_NOK, name, k, TIME_LIMIT);
+
+	printf("%f;", total/ntimes);
 }
 
 void test_all(int n, int k)
@@ -61,18 +112,18 @@ int main(int argc, char **argv)
 	int i, j;
 	int seed;
 
+	// PRNG setup
 	randk_reset();
 	if(argc < 2 || !(seed = atoi(argv[1])))
 	{
-		//seed = time(NULL);
 		randk_seed();
 	}
 	else
 	{
 		printf("SEED: %u\n", seed);
-		//srand(seed);
 		randk_seed_manual(seed);
 	}
+	randk_warmup(10);
 	
 	printf(";;k = 5;;;;k = log2(n);;;;k = sqrt(n);;;;k = n/2;\n");
 	printf("i;n;Stupid;Heap;Median;Quick;");

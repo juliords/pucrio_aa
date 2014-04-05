@@ -13,9 +13,6 @@ int heap_select(int *v, int n, int k)
 	{
 		swap(&v[0], &v[end]);
 		sink(v, 0, end - 1);
-		
-		if (toc() > TIME_LIMIT)
-			return ABORTED;
 	}
 	return v[end + 1];
 }

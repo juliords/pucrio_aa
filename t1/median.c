@@ -14,9 +14,6 @@ static int do_median_select(int *v, int n, int k)
 	/* base case */
 	if(n == 1) return 0;
 
-	if (toc() > TIME_LIMIT)
-		return ABORTED;
-	
 	for(i = 0; i < n/PSIZE; i++)
 	{
 		int *pv = v+(PSIZE*i);
