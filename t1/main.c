@@ -33,16 +33,16 @@ typedef struct
 void* thread_exec(void *arg)
 {
 	ThreadData *p = (ThreadData*) arg;
+	p->running = 1;
 
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
-	p->running = 1;
 	tic();
 	p->kth = p->select(p->v, p->n, p->k);
 	p->time = toc();
-	p->running = 0;
 
+	p->running = 0;
 	return NULL;
 }
 
@@ -62,18 +62,18 @@ void test_one(int n, int k, int (*select)(int*, int, int), char *name, int ntime
 	for (i = 0; i < ntimes; i++)
 	{
 		copy_array(vet, vet2, n);
-	
+
 		pthread_create(&tid, NULL, thread_exec, &td);
 
 		while(td.running)
 		{
-			usleep(100000); // 100ms
-
 			if (toc() > TIME_LIMIT)
 			{
 				pthread_cancel(tid);	
 				break;
 			}
+
+			usleep(100000); // 100ms
 		}
 		
 		pthread_join(tid, &res);
