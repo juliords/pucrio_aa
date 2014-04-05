@@ -65,6 +65,7 @@ void test_one(int n, int k, int (*select)(int*, int, int), char *name, int ntime
 
 		pthread_create(&tid, NULL, thread_exec, &td);
 
+		usleep(1000); // 1ms
 		while(td.running)
 		{
 			if (toc() > TIME_LIMIT)
