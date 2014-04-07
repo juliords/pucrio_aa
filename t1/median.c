@@ -51,10 +51,5 @@ static int do_median_select(int *v, int n, int k)
 
 int median_select(int *v, int n, int k)
 {
-	int i = do_median_select(v,n,k);
-
-	if(i == ABORTED)
-		return ABORTED;
-
-	return v[i];
+	return v[do_median_select(v,n,k)];
 }
