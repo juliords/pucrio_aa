@@ -145,12 +145,13 @@ int main(int argc, char **argv)
 	
 	printf("j;p;\n");
 	
-	for (j = 1; j <= 15; j++)
+	for (j = 1; j <= 19; j++)
 	{
 		int p = 1 << j;
-		instance_b(vet, INPUT_MAX, p);
+		int n = 1 << 20;
+		instance_b(vet, n, p);
 		printf("%d;%d;", j, p);
-		test_battery(INPUT_MAX);
+		test_battery(n);
 	}
 	
 	return 0;
