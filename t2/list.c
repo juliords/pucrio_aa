@@ -11,6 +11,7 @@ struct list {
 	node_t* first;
 	node_t* last;
 	node_t* current;
+	int length;
 };
 
 list_t* new_list()
@@ -20,6 +21,7 @@ list_t* new_list()
 	list->first = NULL;
 	list->last = NULL;
 	list->current = NULL;
+	list->length = 0;
 	return list;
 }
 
@@ -34,16 +36,12 @@ static node_t* new_node(int value)
 
 int is_empty(list_t* list)
 {
-	return list->first == NULL;
+	return list->length == 0;
 }
 
 int get_length(list_t* list)
 {
-	node_t* node;
-	int length = 0;
-	for (node = list->first; node != NULL; node = node->next)
-		length++;
-	return length;
+	return list->length;
 }
 
 void enqueue(list_t* list, int value)
@@ -54,15 +52,18 @@ void enqueue(list_t* list, int value)
 	else
 		list->last->next = node;
 	list->last = node;
+	list->length++;
 }
 
 int dequeue(list_t* list)
 {
+	int value;
 	node_t* node = list->first;
 	list->first = node->next;
 	if (is_empty(list))
 		list->last = NULL;
-	int value = node->value;
+	list->length--;
+	value = node->value;
 	free(node);
 	return value;
 }
