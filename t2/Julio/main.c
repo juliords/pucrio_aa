@@ -11,13 +11,15 @@ typedef struct {
 	int visited;
 	int component;
 	int pre, post;
+	int parent_i;
 } Node; 
 
 Node nodes[400000]; 
 int nodes_l;
 
-int components[100];
-int components_l;
+int comp_v[10];
+int comp_e[10];
+int comp_l;
 
 Node* queue[400000];
 int queue_ini, queue_fin;
@@ -75,7 +77,7 @@ int search_node(int state)
 
 /* -------------------------------------------------------------------------- */
 
-const int pot10[9] = {
+const int pow10inv[9] = {
 	100000000, 10000000, 1000000, 
 	100000, 10000, 1000, 100, 10, 1
 };
@@ -83,13 +85,13 @@ const int pot10[9] = {
 int read_state(int state, int pos)
 {
 
-	return (state/pot10[pos])%10;
+	return (state/pow10inv[pos])%10;
 }
 
 int write_state(int state, int pos, int value)
 {
-	state -= pot10[pos]*read_state(state,pos);
-	state += pot10[pos]*(value%10);
+	state -= pow10inv[pos]*read_state(state,pos);
+	state += pow10inv[pos]*(value%10);
 	return state;
 }
 
@@ -145,40 +147,37 @@ void init_nodes()
 
 /* -------------------------------------------------------------------------- */
 
-void bfs()
+void bfs(int node_i)
 {
-	int i, j;
+	int dir;
 
-	for(i = 0; i < nodes_l; i++)
-		nodes[i].visited = 0;
-	
+	if(nodes[node_i].visited) return;
+
+	nodes[node_i].visited = 1;
+	nodes[node_i].parent_i = -1;
+
 	queue_ini = queue_fin = 0; 
+	queue[queue_fin++] = &nodes[node_i];
 
-	for(i = 0; i < nodes_l; i++)
+	while(queue_ini < queue_fin)
 	{
-		if(nodes[i].visited) continue;
-
-		nodes[i].visited = 1;
-		queue[queue_fin++] = &nodes[i];
-
-		while(queue_ini < queue_fin)
+		Node* node = queue[queue_ini++];
+		
+		for(dir = 0; dir < 4; dir++)
 		{
-			Node* node = queue[queue_ini++];
+			int new_pos = neighbour[node->zero_i][dir];
 			
-			for(j = 0; j < 4; j++)
+			if(new_pos < 9)
 			{
-				int new_pos = neighbour[node->zero_i][j];
-				
-				if(new_pos < 9)
-				{
-					int new_state = swap_pos(node->state, node->zero_i, new_pos); 
-					int node_i = search_node(new_state);
+				int new_state = swap_pos(node->state, node->zero_i, new_pos); 
+				int new_node_i = search_node(new_state);
 
-					if(nodes[node_i].visited == 0)
-					{
-						nodes[node_i].visited = 1;
-						queue[queue_fin++] = &nodes[node_i];
-					}
+				if(nodes[new_node_i].visited == 0)
+				{
+					nodes[new_node_i].visited = nodes[node_i].visited+1;
+					nodes[new_node_i].parent_i = node_i;
+
+					queue[queue_fin++] = &nodes[new_node_i];
 				}
 			}
 		}
@@ -192,8 +191,8 @@ void init_components_visit(int i)
 	int dir;
 
 	nodes[i].visited = 1;
-	nodes[i].component = components_l;
-	components[components_l]++;
+	nodes[i].component = comp_l;
+	comp_v[comp_l]++; /* vertex count */
 
 	for(dir = 0; dir < 4; dir++)
 	{
@@ -203,6 +202,7 @@ void init_components_visit(int i)
 		{
 			int new_state = swap_pos(nodes[i].state, nodes[i].zero_i, new_pos); 
 			int new_node_i = search_node(new_state);
+			comp_e[comp_l]++; /* edge count */
 
 			if(nodes[new_node_i].visited == 0)
 				init_components_visit(new_node_i);
@@ -223,7 +223,7 @@ void init_components()
 
 		init_components_visit(i);
 
-		components_l++;
+		comp_l++;
 	}
 }
 
@@ -245,9 +245,9 @@ int main ()
 		assert(read_state(nodes[i].state, nodes[i].zero_i) == 0);
 
 	/* task 1 */
-	printf("components_l: %d\n", components_l);
-	for(i = 0; i < components_l; i++)
-		printf("component[%d]: %d\n", i, components[i]);
+	printf("comp_l: %d\n", comp_l);
+	for(i = 0; i < comp_l; i++)
+		printf("component[%d]: vertices(%d) - edges(%d)\n", i, comp_v[i], comp_e[i]/2);
 
 	return 0;
 }
