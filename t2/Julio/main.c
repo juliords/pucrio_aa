@@ -2,12 +2,25 @@
 
 #include<stdio.h>
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
 #define MAX_NODES 362880
 
 /* -------------------------------------------------------------------------- */
 
-typedef struct node Node;
-struct node 
+/*
+# variable name suffix dictionary:
+_t -> type
+_i -> index
+_l -> length
+_p -> pointer
+_f -> flag
+_d -> direction
+*/
+
+typedef struct _node node_t;
+struct _node 
 {
 	/* node variables */
 	int state;
@@ -17,26 +30,28 @@ struct node
 	int component;
 	int neighbours_l;
 	int neighbours_d[4];
-	Node* neighbours_p[4];
+	node_t* neighbours_p[4];
 
 	/* auxiliar variables */
 	int visited;
 	int pre, post;
 	int parent_d;
-	Node* parent_p;
+	node_t* parent_p;
 }; 
 
-Node nodes[MAX_NODES]; 
+node_t nodes[MAX_NODES]; 
 int nodes_l;
 
 struct
 {
+	node_t *node_p;
 	int vertices_l;
 	int edges_l;
-} components[10];
+	int bridges_l;
+} components[MAX_NODES];
 int components_l;
 
-Node* queue[MAX_NODES];
+node_t* queue[MAX_NODES];
 int queue_ini, queue_fin;
 
 /* -------------------------------------------------------------------------- */
@@ -183,38 +198,38 @@ void cleanup_visited()
 {
 	int i;
 	for(i = 0; i < nodes_l; i++)
-	{
 		nodes[i].visited = 0;
-	}
 }
 
 /* -------------------------------------------------------------------------- */
 
-void init_graph_visit(int i)
+/* DFS */
+
+void init_graph_visit(node_t *node_p)
 {
 	int dir;
 
-	nodes[i].visited = 1;
-	nodes[i].component = components_l;
+	node_p->visited = 1;
+	node_p->component = components_l;
 	components[components_l].vertices_l++;
 
 	for(dir = 0; dir < 4; dir++)
 	{
-		int new_pos = neighbour[nodes[i].zero_i][dir];
+		int new_pos = neighbour[node_p->zero_i][dir];
 		
 		if(new_pos < 9)
 		{
-			int new_state = swap_pos(nodes[i].state, nodes[i].zero_i, new_pos); 
-			int neigbour_i = search_node(new_state);
+			int new_state = swap_pos(node_p->state, node_p->zero_i, new_pos); 
+			node_t *neighbour_p = &nodes[search_node(new_state)];
 
-			nodes[i].neighbours_d[nodes[i].neighbours_l] = dir;
-			nodes[i].neighbours_p[nodes[i].neighbours_l] = &nodes[neigbour_i];
-			nodes[i].neighbours_l++;
+			node_p->neighbours_d[node_p->neighbours_l] = dir;
+			node_p->neighbours_p[node_p->neighbours_l] = neighbour_p;
+			node_p->neighbours_l++;
 
 			components[components_l].edges_l++;
 
-			if(!nodes[neigbour_i].visited)
-				init_graph_visit(neigbour_i);
+			if(!neighbour_p->visited)
+				init_graph_visit(neighbour_p);
 		}
 	}
 }
@@ -230,40 +245,43 @@ void init_graph()
 	{
 		if(nodes[i].visited) continue;
 
-		init_graph_visit(i);
+		init_graph_visit(&nodes[i]);
 
+		components[components_l].node_p = &nodes[i];
 		components_l++;
 	}
 }
 
 /* -------------------------------------------------------------------------- */
 
-void bfs(Node *p)
+/* BFS */
+
+void find_shortest_path(node_t *init_node_p)
 {
 	int nb;
 
-	if(!p || p->visited) return;
+	if(!init_node_p || init_node_p->visited) return;
 
-	p->visited = 1;
-	p->parent_p = NULL;
+	init_node_p->visited = 1;
+	init_node_p->parent_p = NULL;
 
 	queue_ini = queue_fin = 0; 
-	queue[queue_fin++] = p;
+	queue[queue_fin++] = init_node_p;
 
 	while(queue_ini < queue_fin)
 	{
-		Node* node = queue[queue_ini++];
+		node_t* node_p = queue[queue_ini++];
 		
-		for(nb = 0; nb < node->neighbours_l; nb++)
+		for(nb = 0; nb < node_p->neighbours_l; nb++)
 		{
-			Node *neighbour_p = node->neighbours_p[nb];
+			node_t *neighbour_p = node_p->neighbours_p[nb];
 
 			if(!neighbour_p->visited)
 			{
-				neighbour_p->visited = node->visited+1;
+				neighbour_p->visited = node_p->visited+1;
 
-				neighbour_p->parent_d = node->neighbours_d[nb];
-				neighbour_p->parent_p = node;
+				neighbour_p->parent_d = node_p->neighbours_d[nb];
+				neighbour_p->parent_p = node_p;
 
 				queue[queue_fin++] = neighbour_p;
 			}
@@ -273,10 +291,45 @@ void bfs(Node *p)
 
 /* -------------------------------------------------------------------------- */
 
+/* http://www.geeksforgeeks.org/bridge-in-a-graph/ */
+int find_bridges(node_t *node_p)
+{
+	static int time = 0;
+	int min_time;
+	int i;
+
+	node_p->visited = 1;
+	node_p->parent_p = NULL;
+	node_p->pre = min_time = time++;
+
+	for(i = 0; i < node_p->neighbours_l; i++)
+	{
+		node_t *neighbour_p = node_p->neighbours_p[i];
+
+		if(!neighbour_p->visited)
+		{
+			int ret_time;
+			neighbour_p->parent_p = node_p;
+			ret_time = find_bridges(neighbour_p);
+
+			min_time = MIN(min_time, ret_time);
+
+			if(ret_time > node_p->pre)
+				components[node_p->component].bridges_l++;
+		}
+		else if(node_p->parent_p != neighbour_p)
+			min_time = MIN(min_time, neighbour_p->pre);
+	}
+
+	return min_time;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int main ()
 {
-	int i, nb, max_d_i;
-	Node *p;
+	int i, max_d_i;
+	node_t *p;
 
 	/* initialization */
 	init_nodes();
@@ -294,24 +347,30 @@ int main ()
 
 	max_d_i = search_node(123456780);
 	cleanup_visited();
-	bfs(&nodes[max_d_i]);
+	find_shortest_path(&nodes[max_d_i]);
 
 	for(i = 0; i < nodes_l; i++)
 		if(nodes[i].visited > nodes[max_d_i].visited) 
 			max_d_i = i;
 	printf("max distance: %d\n", nodes[max_d_i].visited-1);
 
-	p = &nodes[max_d_i];
-	while(p->parent_p)
+	for(p = &nodes[max_d_i]; p->parent_p; p = p->parent_p)
 	{
 		print_state(p->state);
 		print_direction(p->parent_d);
-
-		p = p->parent_p;
 	}
 	print_state(p->state);
 
-	printf("%d\n", sizeof(Node));
+	/* task 3 */
+	printf("\n== task3 ==\n");
+
+	printf("# of bridges\n");
+	cleanup_visited();
+	for(i = 0; i < components_l; i++)
+	{
+		find_bridges(components[i].node_p);
+		printf("component %d: %d\n", i, components[i].bridges_l);
+	}
 
 	return 0;
 }
