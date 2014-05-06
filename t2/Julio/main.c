@@ -2,24 +2,31 @@
 
 #include<stdio.h>
 
+#define MAX_NODES 362880
+
 /* -------------------------------------------------------------------------- */
 
-typedef struct 
+typedef struct node Node;
+struct node 
 {
-	/* state variables */
-	int node_i;
+	/* node variables */
 	int state;
 	int zero_i;
+
+	/* graph variables */
 	int component;
-	int neighbours_d[4], neighbours_i[4], neighbours_l;
+	int neighbours_l;
+	int neighbours_d[4];
+	Node* neighbours_p[4];
 
 	/* auxiliar variables */
 	int visited;
 	int pre, post;
-	int parent_i;
-} Node; 
+	int parent_d;
+	Node* parent_p;
+}; 
 
-Node nodes[362880]; 
+Node nodes[MAX_NODES]; 
 int nodes_l;
 
 struct
@@ -29,7 +36,7 @@ struct
 } components[10];
 int components_l;
 
-Node* queue[362880];
+Node* queue[MAX_NODES];
 int queue_ini, queue_fin;
 
 /* -------------------------------------------------------------------------- */
@@ -105,9 +112,15 @@ void print_state(int state)
 	printf("-------------\n");
 }
 
+void print_direction(int direction_i)
+{
+	char direction_string[4][6] = {"NORTH", "EAST", "SOUTH", "WEST"};
+	printf("direction: %s\n", direction_string[direction_i]);
+}
+
 /* -------------------------------------------------------------------------- */
 
-/* total of 9! = 362880 */
+/* total of 9! = MAX_NODES */
 void init_nodes()
 {
 	/* NOTE: this function should be used once only */
@@ -117,7 +130,6 @@ void init_nodes()
 
 	if(n == 9)
 	{
-		nodes[nodes_l].node_i = nodes_l;
 		nodes[nodes_l].state = result;
 		nodes[nodes_l].zero_i = zero_i;
 		nodes_l++;
@@ -171,7 +183,9 @@ void cleanup_visited()
 {
 	int i;
 	for(i = 0; i < nodes_l; i++)
+	{
 		nodes[i].visited = 0;
+	}
 }
 
 /* -------------------------------------------------------------------------- */
@@ -191,16 +205,16 @@ void init_graph_visit(int i)
 		if(new_pos < 9)
 		{
 			int new_state = swap_pos(nodes[i].state, nodes[i].zero_i, new_pos); 
-			int new_node_i = search_node(new_state);
+			int neigbour_i = search_node(new_state);
 
 			nodes[i].neighbours_d[nodes[i].neighbours_l] = dir;
-			nodes[i].neighbours_i[nodes[i].neighbours_l] = new_node_i;
+			nodes[i].neighbours_p[nodes[i].neighbours_l] = &nodes[neigbour_i];
 			nodes[i].neighbours_l++;
 
 			components[components_l].edges_l++;
 
-			if(!nodes[new_node_i].visited)
-				init_graph_visit(new_node_i);
+			if(!nodes[neigbour_i].visited)
+				init_graph_visit(neigbour_i);
 		}
 	}
 }
@@ -224,17 +238,17 @@ void init_graph()
 
 /* -------------------------------------------------------------------------- */
 
-void bfs(int node_i)
+void bfs(Node *p)
 {
 	int nb;
 
-	if(nodes[node_i].visited) return;
+	if(!p || p->visited) return;
 
-	nodes[node_i].visited = 1;
-	nodes[node_i].parent_i = -1;
+	p->visited = 1;
+	p->parent_p = NULL;
 
 	queue_ini = queue_fin = 0; 
-	queue[queue_fin++] = &nodes[node_i];
+	queue[queue_fin++] = p;
 
 	while(queue_ini < queue_fin)
 	{
@@ -242,14 +256,16 @@ void bfs(int node_i)
 		
 		for(nb = 0; nb < node->neighbours_l; nb++)
 		{
-			int new_node_i = node->neighbours_i[nb];
+			Node *neighbour_p = node->neighbours_p[nb];
 
-			if(!nodes[new_node_i].visited)
+			if(!neighbour_p->visited)
 			{
-				nodes[new_node_i].visited = node->visited+1;
-				nodes[new_node_i].parent_i = node->node_i;
+				neighbour_p->visited = node->visited+1;
 
-				queue[queue_fin++] = &nodes[new_node_i];
+				neighbour_p->parent_d = node->neighbours_d[nb];
+				neighbour_p->parent_p = node;
+
+				queue[queue_fin++] = neighbour_p;
 			}
 		}
 	}
@@ -260,12 +276,12 @@ void bfs(int node_i)
 int main ()
 {
 	int i, nb, max_d_i;
+	Node *p;
 
 	/* initialization */
 	init_nodes();
 	init_graph();
 
-	printf("%d\n", sizeof(Node));
 	/* task 1 */
 	printf("\n== task1 ==\n");
 	printf("components_l: %d\n", components_l);
@@ -276,35 +292,26 @@ int main ()
 	/* task 2 */
 	printf("\n== task2 ==\n");
 
+	max_d_i = search_node(123456780);
 	cleanup_visited();
-	bfs(search_node(123456780));
+	bfs(&nodes[max_d_i]);
 
-	for(max_d_i = i = 0; i < nodes_l; i++)
+	for(i = 0; i < nodes_l; i++)
 		if(nodes[i].visited > nodes[max_d_i].visited) 
 			max_d_i = i;
 	printf("max distance: %d\n", nodes[max_d_i].visited-1);
 
-	i = max_d_i;
-	while(nodes[i].parent_i >= 0)
+	p = &nodes[max_d_i];
+	while(p->parent_p)
 	{
-		print_state(nodes[i].state);
-		for(nb = 0; nb < nodes[i].neighbours_l; nb++)
-		{
-			if(nodes[i].neighbours_i[nb] == nodes[i].parent_i)
-			{
-				switch(nodes[i].neighbours_d[nb])
-				{
-					case 0: printf("direction: NORTH\n"); break;
-					case 1: printf("direction: EAST \n"); break;
-					case 2: printf("direction: SOUTH\n"); break;
-					case 3: printf("direction: WEST \n"); break;
-					default: break;
-				}
-			}
-		}
-		i = nodes[i].parent_i;
+		print_state(p->state);
+		print_direction(p->parent_d);
+
+		p = p->parent_p;
 	}
-	print_state(nodes[i].state);
+	print_state(p->state);
+
+	printf("%d\n", sizeof(Node));
 
 	return 0;
 }
