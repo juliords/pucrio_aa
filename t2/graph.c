@@ -137,3 +137,51 @@ int rooted_depth_first_search(graph_t* graph,
 	free(visited);
 	return ret;
 }
+
+static int bfs_visit(graph_t* graph, int v, char* visited,
+	int component, int (*visit)(int v, int component))
+{
+	list_t* queue = new_list();
+	int u, w;
+	vertex_t vertex = graph->vertices[v];
+	
+	enqueue(queue, v);
+	while (!is_empty(queue))
+	{
+		u = dequeue(queue);
+		visited[u] = 1;
+		if (visit(u, component))
+			return 1;
+		
+		vertex = graph->vertices[u];
+		go_to_beginning(vertex.edges);
+		while (has_next(vertex.edges))
+		{
+			w = get_next(vertex.edges);
+			if (!visited[w])
+				enqueue(queue, w);
+		}
+	}
+	
+	return 0;
+}
+
+int breadth_first_search(graph_t* graph,
+	int (*visit)(int v, int component))
+{
+	int u, n = graph->num_vertices, component = 0, ret;
+	char* visited = new_char_array(n);
+	
+	for (u = 0; u < n; u++)
+	{
+		if (!visited[u]) {
+			ret = bfs_visit(graph, u, visited, component, visit);
+			if (ret == 1)
+				break;
+			component++;
+		}
+	}
+	
+	free(visited);
+	return 0;
+}
