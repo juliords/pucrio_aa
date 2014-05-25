@@ -139,43 +139,6 @@ void print_direction(int direction_i)
 
 /* -------------------------------------------------------------------------- */
 
-/* total of 9! = MAX_NODES */
-void init_nodes()
-{
-	/* NOTE: this function should be used once only */
-	static int used[9] = {0,0,0,0,0,0,0,0,0};
-	static int result = 0, n = 0, zero_i;
-	int i;
-
-	if(n == 9)
-	{
-		nodes[nodes_l].state = result;
-		nodes[nodes_l].zero_i = zero_i;
-		nodes_l++;
-
-		return;
-	}
-
-	for(i = 0; i < 9; i++)
-	{
-		if(used[i]) continue;
-		result *= 10;
-		result += i;
-
-		if(i == 0) zero_i = n;
-
-		n++;
-		used[i] = 1;
-		init_nodes();
-		used[i] = 0;
-		n--;
-
-		result /= 10;
-	}
-}
-
-/* -------------------------------------------------------------------------- */
-
 /* returns its index */
 int search_node(int state)
 {
@@ -207,6 +170,45 @@ void cleanup_visited()
 
 /* -------------------------------------------------------------------------- */
 
+/* total of 9! = MAX_NODES */
+void init_nodes()
+{
+	/* NOTE: this function should be used once only */
+	static int used[9] = {0,0,0,0,0,0,0,0,0};
+	static int result = 0, n = 0, zero_i;
+	int i;
+
+	if(n == 9)
+	{
+		nodes[nodes_l].state = result;
+		nodes[nodes_l].zero_i = zero_i;
+		nodes_l++;
+
+		return;
+	}
+
+	for(i = 0; i < 9; i++)
+	{
+		if(used[i]) 
+			continue;
+
+		result *= 10;
+		result += i;
+
+		if(i == 0) zero_i = n;
+
+		n++;
+		used[i] = 1;
+		init_nodes();
+		used[i] = 0;
+		n--;
+
+		result /= 10;
+	}
+}
+
+/* -------------------------------------------------------------------------- */
+
 /* DFS */
 
 void init_graph_visit(node_t *node_p)
@@ -214,8 +216,6 @@ void init_graph_visit(node_t *node_p)
 	int dir;
 
 	node_p->visited = 1;
-	node_p->component = components_l;
-	components[components_l].vertices_l++;
 
 	for(dir = 0; dir < 4; dir++)
 	{
@@ -230,8 +230,6 @@ void init_graph_visit(node_t *node_p)
 			node_p->neighbours_p[node_p->neighbours_l] = neighbour_p;
 			node_p->neighbours_l++;
 
-			components[components_l].edges_l++;
-
 			if(!neighbour_p->visited)
 				init_graph_visit(neighbour_p);
 		}
@@ -243,21 +241,61 @@ void init_graph()
 	int i;
 
 	cleanup_visited();
+
+	for(i = 0; i < nodes_l; i++)
+	{
+		if(nodes[i].visited) 
+			continue;
+
+		init_graph_visit(&nodes[i]);
+	}
+}
+
+/* -------------------------------------------------------------------------- */
+
+/* DFS */
+
+void init_components_visit(node_t *node_p)
+{
+	int nb;
+
+	node_p->visited = 1;
+	node_p->component = components_l;
+	components[components_l].vertices_l++;
+
+	for(nb = 0; nb < node_p->neighbours_l; nb++)
+	{
+		node_t *neighbour_p = node_p->neighbours_p[nb];
+
+		components[components_l].edges_l++;
+
+		if(!neighbour_p->visited)
+			init_components_visit(neighbour_p);
+	}
+}
+
+void init_components()
+{
+	int i;
+
+	cleanup_visited();
 	components_l = 0;
 	
 	for(i = 0; i < nodes_l; i++)
 	{
-		if(nodes[i].visited) continue;
+		if(nodes[i].visited) 
+			continue;
 
 		components[components_l].vertices_l = 0;
 		components[components_l].edges_l = 0;
 
-		init_graph_visit(&nodes[i]);
+		init_components_visit(&nodes[i]);
 
 		components[components_l].node_p = &nodes[i];
 		components_l++;
 	}
 }
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -267,7 +305,8 @@ void find_shortest_path(node_t *init_node_p)
 {
 	int nb;
 
-	if(!init_node_p || init_node_p->visited) return;
+	if(!init_node_p || init_node_p->visited) 
+		return;
 
 	init_node_p->visited = 1;
 	init_node_p->parent_p = NULL;
@@ -342,6 +381,7 @@ int main ()
 	nodes_l = 0;
 	init_nodes();
 	init_graph();
+	init_components();
 
 	/* task 1 */
 	printf("\n== task1 ==\n");
