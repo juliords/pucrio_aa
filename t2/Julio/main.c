@@ -249,6 +249,9 @@ void init_graph()
 	{
 		if(nodes[i].visited) continue;
 
+		components[components_l].vertices_l = 0;
+		components[components_l].edges_l = 0;
+
 		init_graph_visit(&nodes[i]);
 
 		components[components_l].node_p = &nodes[i];
@@ -336,6 +339,7 @@ int main ()
 	node_t *p;
 
 	/* initialization */
+	nodes_l = 0;
 	init_nodes();
 	init_graph();
 
