@@ -1,6 +1,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include<stdio.h>
+#include<stdlib.h>
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -328,7 +329,7 @@ int find_bridges(node_t *node_p)
 
 int main ()
 {
-	int i, max_d_i;
+	int i;
 	node_t *p;
 
 	/* initialization */
@@ -345,16 +346,13 @@ int main ()
 	/* task 2 */
 	printf("\n== task2 ==\n");
 
-	max_d_i = search_node(123456780);
 	cleanup_visited();
-	find_shortest_path(&nodes[max_d_i]);
+	find_shortest_path(&nodes[search_node(123456780)]);
 
-	for(i = 0; i < nodes_l; i++)
-		if(nodes[i].visited > nodes[max_d_i].visited) 
-			max_d_i = i;
-	printf("max distance: %d\n", nodes[max_d_i].visited-1);
+	p = queue[queue_fin-1];
+	printf("max distance: %d\n", p->visited-1);
 
-	for(p = &nodes[max_d_i]; p->parent_p; p = p->parent_p)
+	for(; p->parent_p; p = p->parent_p)
 	{
 		print_state(p->state);
 		print_direction(p->parent_d);
