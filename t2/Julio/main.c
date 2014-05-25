@@ -43,13 +43,16 @@ struct _node
 node_t nodes[MAX_NODES]; 
 int nodes_l;
 
-struct
+typedef struct _component component_t;
+struct _component
 {
 	node_t *node_p;
 	int vertices_l;
 	int edges_l;
 	int bridges_l;
-} components[MAX_NODES];
+};
+
+component_t components[MAX_NODES];
 int components_l;
 
 node_t* queue[MAX_NODES];
